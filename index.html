@@ -3,165 +3,217 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biwenger Panel de Control</title>
+  <title>Biwenger Panel Control</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-900 min-h-screen font-sans">
 
   <div id="app" v-cloak>
-    
-    <nav class="bg-white border-b border-gray-300 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-      <div class="flex items-center gap-8">
-        <h1 class="text-xl font-bold text-gray-900">Biwenger Panel de Control</h1>
-        <div class="hidden md:flex gap-6">
-          <a href="#" class="text-gray-500 hover:text-blue-600 font-medium">Mi equipo</a>
-          <a href="#" class="text-blue-600 font-bold border-b-2 border-blue-600 pb-1">Managers</a>
-          <a href="#" class="text-gray-500 hover:text-blue-600 font-medium">Mercado</a>
-        </div>
-      </div>
-    </nav>
 
-    <div class="max-w-[1600px] mx-auto p-4 md:p-6 mt-2">
-      
+    <!-- HEADER -->
+    <header class="bg-white border-b border-gray-200 px-6 py-3 sticky top-0 z-20">
+      <div class="max-w-[1800px] mx-auto flex items-center justify-between gap-8">
+        <h1 class="text-lg font-bold text-gray-900 whitespace-nowrap">Biwenger Panel Control</h1>
+        <!-- NAVBAR -->
+        <nav class="flex gap-0">
+          <button
+            v-for="tab in tabs" :key="tab.id"
+            @click="activeTab = tab.id"
+            :class="['px-5 py-2 text-sm font-semibold border-b-2 transition-colors',
+              activeTab === tab.id
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-800'
+            ]"
+          >{{ tab.label }}</button>
+        </nav>
+        <div class="w-32"></div><!-- spacer -->
+      </div>
+    </header>
+
+    <div class="max-w-[1800px] mx-auto p-4 md:p-6 mt-2">
+
       <div v-if="loading" class="flex flex-col items-center justify-center py-20">
         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-4"></div>
         <p class="text-gray-500 font-medium">Sincronizando datos de la liga...</p>
       </div>
 
-      <div v-else class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        
-        <aside class="lg:col-span-1 bg-white border border-gray-300 p-4 h-fit">
-          <h2 class="text-xs font-bold text-gray-400 tracking-wider uppercase mb-4 px-1">Comunidad</h2>
-          <div class="space-y-1">
-            <button 
-              v-for="(data, managerName) in leagueData" 
-              :key="managerName"
-              @click="selectManager(managerName)"
-              :class="['w-full text-left px-3 py-2.5 text-sm flex justify-between items-center transition-colors border', 
-                activeManager === managerName 
-                  ? 'bg-blue-50 border-blue-300 text-blue-800 font-bold' 
-                  : 'bg-white border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-200 font-medium'
-              ]"
-            >
-              <span class="truncate pr-2">{{ managerName }}</span>
-              <span :class="['text-xs px-2 py-0.5 font-bold whitespace-nowrap', activeManager === managerName ? 'text-blue-600' : 'text-gray-400']">
-                {{ data.info_manager.jugadores_en_plantilla }} jug.
-              </span>
-            </button>
-          </div>
-        </aside>
+      <div v-else>
 
-        <main v-if="currentManagerData" class="lg:col-span-4 flex flex-col gap-6">
-          
-          <div class="bg-white border border-gray-300 p-5 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
-            <div class="flex items-center gap-4 w-full xl:w-auto">
-              <h2 class="text-2xl font-bold text-gray-900 whitespace-nowrap">{{ activeManager }}</h2>
-              <input 
-                v-model="searchQuery" 
-                type="text" 
-                placeholder="Buscar jugador..." 
-                class="bg-gray-50 border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 text-gray-900 w-full md:w-64"
-              />
+        <!-- TAB: MI EQUIPO -->
+        <div v-if="activeTab === 'miEquipo'">
+          <p class="text-gray-400 text-sm">Vista Mi Equipo — próximamente.</p>
+        </div>
+
+        <!-- TAB: MANAGERS -->
+        <div v-if="activeTab === 'managers'" class="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
+
+          <!-- ASIDE managers -->
+          <aside class="bg-white border border-gray-200 p-4 h-fit">
+            <h2 class="text-xs font-bold text-gray-400 tracking-wider uppercase mb-3 px-1">Comunidad</h2>
+            <div class="space-y-0.5">
+              <button
+                v-for="(data, managerName) in leagueData" :key="managerName"
+                @click="selectManager(managerName)"
+                :class="['w-full text-left px-3 py-2 text-sm flex justify-between items-center transition-colors',
+                  activeManager === managerName
+                    ? 'bg-blue-50 text-blue-800 font-bold'
+                    : 'text-gray-700 hover:bg-gray-50 font-medium'
+                ]"
+              >
+                <span class="truncate pr-2">{{ managerName }}</span>
+                <span :class="['text-xs font-bold whitespace-nowrap', activeManager === managerName ? 'text-blue-500' : 'text-gray-400']">
+                  {{ data.info_manager.jugadores_en_plantilla }}
+                </span>
+              </button>
+            </div>
+          </aside>
+
+          <!-- MAIN tabla -->
+          <main v-if="currentManagerData" class="flex flex-col gap-4">
+
+            <!-- Info manager -->
+            <div class="bg-white border border-gray-200 p-4 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+              <div class="flex items-center gap-4 w-full xl:w-auto">
+                <h2 class="text-xl font-bold text-gray-900 whitespace-nowrap">{{ activeManager }}</h2>
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="Buscar jugador..."
+                  class="bg-gray-50 border border-gray-200 px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 text-gray-900 w-full md:w-56"
+                />
+              </div>
+              <div class="flex flex-wrap gap-6 xl:ml-auto">
+                <div>
+                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Valor Plantilla</p>
+                  <p class="text-base font-bold text-gray-900">
+                    {{ formatMoney(currentManagerData.info_manager.valor_total_equipo) }}
+                    <span :class="['text-sm ml-1', currentManagerData.info_manager.incremento_total_hoy > 0 ? 'text-green-600' : (currentManagerData.info_manager.incremento_total_hoy < 0 ? 'text-red-600' : 'text-gray-400')]">
+                      {{ formatIncDash(currentManagerData.info_manager.incremento_total_hoy, true) }}
+                    </span>
+                  </p>
+                </div>
+                <div class="w-px bg-gray-200 hidden sm:block"></div>
+                <div>
+                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Clasificación</p>
+                  <p class="text-base font-bold text-blue-600">#{{ currentManagerData.info_manager.posicion_liga }}</p>
+                </div>
+              </div>
             </div>
 
-            <div class="flex flex-wrap gap-6 xl:ml-auto">
-              <div>
-                <p class="text-xs font-bold text-gray-500 uppercase">Valor Plantilla</p>
-                <p class="text-lg font-bold text-gray-900">
-                  {{ formatMoney(currentManagerData.info_manager.valor_total_equipo) }}
-                  <span :class="['text-sm ml-1', currentManagerData.info_manager.incremento_total_hoy > 0 ? 'text-green-600' : (currentManagerData.info_manager.incremento_total_hoy < 0 ? 'text-red-600' : 'text-gray-400')]">
-                    ({{ currentManagerData.info_manager.incremento_total_hoy > 0 ? '+' : '' }}{{ currentManagerData.info_manager.incremento_total_hoy === 0 ? '-' : currentManagerData.info_manager.incremento_total_hoy.toLocaleString('es-ES') }})
-                  </span>
-                </p>
-              </div>
-              <div class="hidden sm:block w-px bg-gray-300"></div>
-              <div>
-                <p class="text-xs font-bold text-gray-500 uppercase">Clasificación</p>
-                <p class="text-lg font-bold text-blue-600">#{{ currentManagerData.info_manager.posicion_liga }}</p>
-              </div>
+            <!-- Tabla jugadores -->
+            <div class="bg-white border border-gray-200 overflow-x-auto">
+              <table class="w-full text-sm text-left" style="min-width:1050px; table-layout:fixed;">
+                <colgroup>
+                  <col style="width:200px">  <!-- Jugador -->
+                  <col style="width:50px">   <!-- Pos -->
+                  <col style="width:115px">  <!-- VM -->
+                  <col style="width:90px">   <!-- Inc Hoy -->
+                  <col style="width:160px">  <!-- Cláusula -->
+                  <col style="width:110px">  <!-- Inversión -->
+                  <col style="width:150px">  <!-- Mercado -->
+                  <col style="width:180px">  <!-- Estado -->
+                </colgroup>
+                <thead class="text-[11px] text-gray-500 uppercase bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th @click="toggleSort('nombre')" class="px-4 py-3 cursor-pointer hover:bg-gray-100 select-none">
+                      <span class="flex items-center gap-1">Jugador <sort-icon :field="'nombre'" :sort-by="sortBy" :sort-desc="sortDesc"></sort-icon></span>
+                    </th>
+                    <th class="px-4 py-3">Pos</th>
+                    <th @click="toggleSort('valor_mercado')" class="px-4 py-3 cursor-pointer hover:bg-gray-100 select-none">
+                      <span class="flex items-center gap-1">VM <sort-icon :field="'valor_mercado'" :sort-by="sortBy" :sort-desc="sortDesc"></sort-icon></span>
+                    </th>
+                    <th @click="toggleSort('precio_incremento_hoy')" class="px-4 py-3 cursor-pointer hover:bg-gray-100 select-none">
+                      <span class="flex items-center gap-1">Inc. Hoy <sort-icon :field="'precio_incremento_hoy'" :sort-by="sortBy" :sort-desc="sortDesc"></sort-icon></span>
+                    </th>
+                    <th @click="toggleSort('clausula_actual')" class="px-4 py-3 cursor-pointer hover:bg-gray-100 select-none">
+                      <span class="flex items-center gap-1">Cláusula <sort-icon :field="'clausula_actual'" :sort-by="sortBy" :sort-desc="sortDesc"></sort-icon></span>
+                    </th>
+                    <th @click="toggleSort('precio_compra')" class="px-4 py-3 cursor-pointer hover:bg-gray-100 select-none">
+                      <span class="flex items-center gap-1">Inversión <sort-icon :field="'precio_compra'" :sort-by="sortBy" :sort-desc="sortDesc"></sort-icon></span>
+                    </th>
+                    <th @click="toggleSort('precio_salida_mercado')" class="px-4 py-3 cursor-pointer hover:bg-gray-100 select-none border-l border-gray-100">
+                      <span class="flex items-center gap-1">Mercado <sort-icon :field="'precio_salida_mercado'" :sort-by="sortBy" :sort-desc="sortDesc"></sort-icon></span>
+                    </th>
+                    <th class="px-4 py-3 border-l border-gray-100">Estado</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                  <tr v-for="player in filteredPlayers" :key="player.id" class="hover:bg-gray-50">
+
+                    <!-- Jugador -->
+                    <td class="px-4 py-2.5 font-semibold text-gray-900">
+                      <div class="flex items-center gap-2 min-w-0">
+                        <img :src="player.bandera_url" @error="$event.target.src='https://cdn.biwenger.com/i/t/default.png'" class="w-5 h-auto flex-shrink-0" />
+                        <span class="truncate">{{ player.nombre }}</span>
+                      </div>
+                    </td>
+
+                    <!-- Posición -->
+                    <td class="px-4 py-2.5">
+                      <span :class="['px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider', getPosClass(player.posicion)]">
+                        {{ player.posicion }}
+                      </span>
+                    </td>
+
+                    <!-- VM -->
+                    <td class="px-4 py-2.5 font-medium text-gray-800">{{ formatMoney(player.valor_mercado) }}</td>
+
+                    <!-- Inc Hoy -->
+                    <td :class="['px-4 py-2.5 font-semibold tabular-nums', player.precio_incremento_hoy > 0 ? 'text-green-600' : (player.precio_incremento_hoy < 0 ? 'text-red-500' : 'text-gray-300')]">
+                      {{ formatIncDash(player.precio_incremento_hoy) }}
+                    </td>
+
+                    <!-- Cláusula -->
+                    <td class="px-4 py-2.5">
+                      <span class="font-semibold text-gray-800">{{ formatMoneyDash(player.clausula_actual) }}</span>
+                      <span class="text-[11px] text-gray-400 ml-1">{{ getClausePercentage(player.clausula_actual, player.valor_mercado) }}</span>
+                    </td>
+
+                    <!-- Inversión -->
+                    <td class="px-4 py-2.5 text-gray-500 tabular-nums">{{ formatMoneyDash(player.precio_compra) }}</td>
+
+                    <!-- Mercado -->
+                    <td class="px-4 py-2.5 border-l border-gray-100">
+                      <div v-if="player.en_venta" class="flex items-center gap-1 text-orange-600 font-semibold cursor-pointer hover:text-orange-800 tabular-nums" title="Ver en Mercado">
+                        {{ formatMoney(player.precio_salida_mercado) }}<span class="text-[13px] leading-none">↗</span>
+                      </div>
+                      <span v-else class="text-gray-300">-</span>
+                    </td>
+
+                    <!-- Estado -->
+                    <td class="px-4 py-2.5 border-l border-gray-100">
+                      <div class="flex flex-col gap-1">
+                        <!-- Clausulabilidad -->
+                        <span v-if="!player.clausula_bloqueada" class="inline-block text-[11px] font-semibold text-green-700 bg-green-50 px-2 py-0.5 w-fit">
+                          Clausulable
+                        </span>
+                        <span v-else class="inline-block text-[11px] font-semibold text-red-600 bg-red-50 px-2 py-0.5 w-fit whitespace-nowrap">
+                          No clausulable{{ getTimeUntilAvailable(player.clausula_disponible_en_fecha) ? ' (' + getTimeUntilAvailable(player.clausula_disponible_en_fecha) + ')' : '' }}
+                        </span>
+                        <!-- En venta badge -->
+                        <span v-if="player.en_venta" class="inline-block text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 w-fit">
+                          En venta
+                        </span>
+                      </div>
+                    </td>
+
+                  </tr>
+                  <tr v-if="filteredPlayers.length === 0">
+                    <td colspan="8" class="text-center py-10 text-gray-400">No se encontraron resultados.</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </div>
 
-          <div class="bg-white border border-gray-300 overflow-x-auto">
-            <table class="w-full text-sm text-left table-fixed min-w-[1000px]">
-              <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-300">
-                <tr>
-                  <th @click="toggleSort('nombre')" class="w-1/4 px-4 py-3 cursor-pointer hover:bg-gray-100 select-none">
-                    Jugador <span v-if="sortBy === 'nombre'" class="text-blue-500">{{ sortDesc ? '▼' : '▲' }}</span>
-                  </th>
-                  <th class="w-16 px-4 py-3">Pos</th>
-                  <th @click="toggleSort('valor_mercado')" class="w-28 px-4 py-3 cursor-pointer hover:bg-gray-100 select-none">
-                    V. Mercado <span v-if="sortBy === 'valor_mercado'" class="text-blue-500">{{ sortDesc ? '▼' : '▲' }}</span>
-                  </th>
-                  <th @click="toggleSort('precio_incremento_hoy')" class="w-24 px-4 py-3 cursor-pointer hover:bg-gray-100 select-none">
-                    Inc. Hoy <span v-if="sortBy === 'precio_incremento_hoy'" class="text-blue-500">{{ sortDesc ? '▼' : '▲' }}</span>
-                  </th>
-                  <th @click="toggleSort('clausula_actual')" class="w-40 px-4 py-3 cursor-pointer hover:bg-gray-100 select-none">
-                    Cláusula <span v-if="sortBy === 'clausula_actual'" class="text-blue-500">{{ sortDesc ? '▼' : '▲' }}</span>
-                  </th>
-                  <th @click="toggleSort('precio_compra')" class="w-28 px-4 py-3 cursor-pointer hover:bg-gray-100 select-none">
-                    Inversión <span v-if="sortBy === 'precio_compra'" class="text-blue-500">{{ sortDesc ? '▼' : '▲' }}</span>
-                  </th>
-                  <th @click="toggleSort('precio_salida_mercado')" class="w-32 px-4 py-3 cursor-pointer hover:bg-gray-100 select-none border-l border-gray-200">
-                    Mercado <span v-if="sortBy === 'precio_salida_mercado'" class="text-blue-500">{{ sortDesc ? '▼' : '▲' }}</span>
-                  </th>
-                  <th class="w-48 px-4 py-3 border-l border-gray-200">Estado</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200">
-                <tr v-for="player in filteredPlayers" :key="player.id" class="hover:bg-gray-50">
-                  
-                  <td class="px-4 py-2.5 font-bold text-gray-900 truncate">
-                    <div class="flex items-center gap-2">
-                      <img :src="player.bandera_url" @error="$event.target.src='https://cdn.biwenger.com/i/t/default.png'" class="w-6 h-auto object-contain" />
-                      <span class="truncate">{{ player.nombre }}</span>
-                    </div>
-                  </td>
-                  
-                  <td class="px-4 py-2.5">
-                    <span :class="['px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider', getPosClass(player.posicion)]">
-                      {{ player.posicion }}
-                    </span>
-                  </td>
-                  
-                  <td class="px-4 py-2.5 font-medium text-gray-800">{{ formatMoney(player.valor_mercado) }}</td>
-                  
-                  <td :class="['px-4 py-2.5 font-semibold', player.precio_incremento_hoy > 0 ? 'text-green-600' : (player.precio_incremento_hoy < 0 ? 'text-red-600' : 'text-gray-400')]">
-                    {{ formatIncDash(player.precio_incremento_hoy) }}
-                  </td>
-                  
-                  <td class="px-4 py-2.5">
-                    <span class="font-bold text-gray-900">{{ formatMoneyDash(player.clausula_actual) }}</span>
-                    <span class="text-[11px] text-gray-500 ml-1">{{ getClausePercentage(player.clausula_actual, player.valor_mercado) }}</span>
-                  </td>
-                  
-                  <td class="px-4 py-2.5 text-gray-600">{{ formatMoneyDash(player.precio_compra) }}</td>
+          </main>
+        </div>
 
-                  <td class="px-4 py-2.5 border-l border-gray-200 font-bold text-orange-600">
-                    <div v-if="player.en_venta" class="flex items-center gap-1 cursor-pointer hover:text-orange-800" title="Ver en Mercado">
-                      {{ formatMoney(player.precio_salida_mercado) }} <span class="text-[14px]">↗</span>
-                    </div>
-                    <span v-else class="text-gray-300 font-normal">-</span>
-                  </td>
-                  
-                  <td class="px-4 py-2.5 border-l border-gray-200">
-                    <span v-if="player.clausula_bloqueada" class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1">
-                      Blindado (hasta {{ formatShortDate(player.clausula_disponible_en_fecha) }})
-                    </span>
-                    <span v-else class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1">
-                      Clausulable
-                    </span>
-                  </td>
+        <!-- TAB: MERCADO -->
+        <div v-if="activeTab === 'mercado'">
+          <p class="text-gray-400 text-sm">Vista Mercado — próximamente.</p>
+        </div>
 
-                </tr>
-                <tr v-if="filteredPlayers.length === 0">
-                  <td colspan="8" class="text-center py-8 text-gray-400 font-medium">No se encontraron resultados.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </main>
       </div>
     </div>
   </div>
@@ -169,14 +221,30 @@
   <script>
     const { createApp, ref, computed, onMounted } = Vue;
 
+    // Helper component for sort icon (reserves space always)
+    const SortIcon = {
+      props: ['field', 'sortBy', 'sortDesc'],
+      template: `<span class="inline-block w-3 text-center text-blue-500 text-[10px]">
+        <template v-if="field === sortBy">{{ sortDesc ? '▼' : '▲' }}</template>
+        <template v-else><span class="text-gray-300">⬍</span></template>
+      </span>`
+    };
+
     createApp({
+      components: { SortIcon },
       setup() {
         const leagueData = ref({});
         const loading = ref(true);
         const activeManager = ref('');
         const searchQuery = ref('');
-        
-        // Ordenación por defecto: V.Mercado de mayor a menor
+        const activeTab = ref('managers');
+
+        const tabs = [
+          { id: 'miEquipo', label: 'Mi Equipo' },
+          { id: 'managers', label: 'Managers' },
+          { id: 'mercado', label: 'Mercado' },
+        ];
+
         const sortBy = ref('valor_mercado');
         const sortDesc = ref(true);
 
@@ -202,27 +270,18 @@
         const currentManagerData = computed(() => leagueData.value[activeManager.value] || null);
 
         const filteredPlayers = computed(() => {
-          if (!currentManagerData.value || !currentManagerData.value.plantilla) return [];
-          
+          if (!currentManagerData.value?.plantilla) return [];
           let list = [...currentManagerData.value.plantilla];
 
-          if (searchQuery.value.trim() !== '') {
-            const query = searchQuery.value.toLowerCase();
-            list = list.filter(p => p.nombre.toLowerCase().includes(query) || p.posicion.toLowerCase().includes(query));
+          if (searchQuery.value.trim()) {
+            const q = searchQuery.value.toLowerCase();
+            list = list.filter(p => p.nombre.toLowerCase().includes(q) || p.posicion.toLowerCase().includes(q));
           }
 
           list.sort((a, b) => {
-            let valA = a[sortBy.value];
-            let valB = b[sortBy.value];
-
-            // Si ordenamos por mercado pero hay nulos (no en venta), los empujamos abajo
-            if (sortBy.value === 'precio_salida_mercado') {
-               valA = valA || 0;
-               valB = valB || 0;
-            }
-
+            let valA = a[sortBy.value] ?? 0;
+            let valB = b[sortBy.value] ?? 0;
             if (typeof valA === 'string') { valA = valA.toLowerCase(); valB = valB.toLowerCase(); }
-
             if (valA < valB) return sortDesc.value ? 1 : -1;
             if (valA > valB) return sortDesc.value ? -1 : 1;
             return 0;
@@ -232,52 +291,51 @@
         });
 
         const toggleSort = (field) => {
-          if (sortBy.value === field) {
-            sortDesc.value = !sortDesc.value;
-          } else {
-            sortBy.value = field;
-            sortDesc.value = true;
-          }
+          if (sortBy.value === field) sortDesc.value = !sortDesc.value;
+          else { sortBy.value = field; sortDesc.value = true; }
         };
 
-        // Formateadores
         const formatMoney = (amount) => {
           if (!amount) return "0 €";
           return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(amount);
         };
 
-        // Si es 0 o null, devuelve un guion
         const formatMoneyDash = (amount) => {
           if (!amount || amount === 0) return "-";
           return formatMoney(amount);
         };
 
-        const formatIncDash = (amount) => {
+        const formatIncDash = (amount, parens = false) => {
           if (!amount || amount === 0) return "-";
           const sign = amount > 0 ? '+' : '';
-          return sign + amount.toLocaleString('es-ES');
+          const str = sign + amount.toLocaleString('es-ES');
+          return parens ? `(${str})` : str;
         };
 
-        // Extrae la hora o fecha corta de la cadena que viene del JSON
-        const formatShortDate = (dateStr) => {
-            if(!dateStr || dateStr === "Disponible") return "";
-            // Asume que dateStr viene como "DD/MM/YYYY, HH:MM:SS" y lo acorta a "DD/MM HH:MM"
-            const parts = dateStr.split(', ');
-            if(parts.length === 2) {
-                const dayMonth = parts[0].substring(0, 5);
-                const time = parts[1].substring(0, 5);
-                return `${dayMonth} ${time}`;
-            }
-            return dateStr;
-        };
-
-        // Calcula porcentaje: (Clausula - VM) / VM
         const getClausePercentage = (clause, vm) => {
-          if (!vm || vm === 0 || !clause || clause === 0) return "";
-          const diff = clause - vm;
-          const pct = (diff / vm) * 100;
+          if (!vm || !clause) return "";
+          const pct = ((clause - vm) / vm) * 100;
           const sign = pct >= 0 ? '+' : '';
           return `(${sign}${pct.toFixed(0)}%)`;
+        };
+
+        // Returns "Xh Ym" remaining time until available, or empty string
+        const getTimeUntilAvailable = (dateStr) => {
+          if (!dateStr || dateStr === "Disponible") return "";
+          // Format: "DD/MM/YYYY, HH:MM:SS"
+          const [datePart, timePart] = dateStr.split(', ');
+          if (!datePart || !timePart) return "";
+          const [d, m, y] = datePart.split('/');
+          const [hh, mm, ss] = timePart.split(':');
+          const target = new Date(+y, +m - 1, +d, +hh, +mm, +ss);
+          const now = new Date();
+          const diffMs = target - now;
+          if (diffMs <= 0) return "";
+          const diffMins = Math.floor(diffMs / 60000);
+          const hours = Math.floor(diffMins / 60);
+          const mins = diffMins % 60;
+          if (hours > 0) return `${hours}h ${mins}m`;
+          return `${mins}m`;
         };
 
         const getPosClass = (pos) => {
@@ -293,9 +351,11 @@
         onMounted(fetchData);
 
         return {
-          leagueData, loading, activeManager, searchQuery, sortBy, sortDesc,
-          currentManagerData, filteredPlayers, selectManager, toggleSort, 
-          formatMoney, formatMoneyDash, formatIncDash, getClausePercentage, formatShortDate, getPosClass
+          leagueData, loading, activeManager, searchQuery, activeTab, tabs,
+          sortBy, sortDesc, currentManagerData, filteredPlayers,
+          selectManager, toggleSort,
+          formatMoney, formatMoneyDash, formatIncDash,
+          getClausePercentage, getTimeUntilAvailable, getPosClass
         };
       }
     }).mount('#app');
@@ -303,6 +363,7 @@
 
   <style>
     [v-cloak] { display: none !important; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
   </style>
 </body>
 </html>
